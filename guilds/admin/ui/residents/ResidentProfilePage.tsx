@@ -1,6 +1,7 @@
 import { useEffect, useMemo, useState, type ChangeEvent } from "react";
 import { Link, useNavigate, useParams } from "react-router-dom";
-import { ArrowLeftIcon, UserXIcon } from "lucide-react";
+import { format } from "date-fns";
+import { ArrowLeftIcon, CalendarIcon, UserMinusIcon, UserXIcon } from "lucide-react";
 import { toast } from "sonner";
 
 import { Badge } from "@/components/ui/badge";
@@ -15,6 +16,8 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
+import { Calendar } from "@/components/ui/calendar";
+import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { Textarea } from "@/components/ui/textarea";
 import {
   Table,
@@ -113,6 +116,11 @@ export default function ResidentProfilePage() {
   const [isDeactivateDialogOpen, setIsDeactivateDialogOpen] = useState(false);
   const [deactivateReason, setDeactivateReason] = useState("");
   const [isSubmittingDeactivate, setIsSubmittingDeactivate] = useState(false);
+
+  const [isReleaseDialogOpen, setIsReleaseDialogOpen] = useState(false);
+  const [releaseReason, setReleaseReason] = useState("");
+  const [releaseDate, setReleaseDate] = useState<Date>(new Date());
+  const [isSubmittingRelease, setIsSubmittingRelease] = useState(false);
 
   useEffect(() => {
     const controller = new AbortController();
@@ -246,6 +254,72 @@ export default function ResidentProfilePage() {
     }
   };
 
+  const handleRelease = async () => {
+    if (!id || !resident) {
+      return;
+    }
+
+    const reason = releaseReason.trim();
+    if (!reason) {
+      toast.error("A reason is required to release this resident.");
+      return;
+    }
+
+    const token = localStorage.getItem("token");
+
+    if (!token) {
+      toast.error("You are not authenticated. Please sign in again.");
+      return;
+    }
+
+    setIsSubmittingRelease(true);
+
+    try {
+      const response = await fetch(`/api/admin/residents/${id}/release`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
+        body: JSON.stringify({
+          reason,
+          releaseDate: releaseDate.toISOString(),
+        }),
+      });
+
+      const payload = (await response.json()) as ApiResponse<ResidentProfile>;
+
+      if (!response.ok || !payload.success) {
+        const message = payload.success
+          ? "Failed to release resident"
+          : payload.error.message;
+        throw new Error(message);
+      }
+
+      setResident((current) =>
+        current
+          ? {
+              ...current,
+              status: "released",
+            }
+          : current
+      );
+
+      setIsReleaseDialogOpen(false);
+      setReleaseReason("");
+      setReleaseDate(new Date());
+      toast.success("Resident released successfully.");
+    } catch (submitError) {
+      const message =
+        submitError instanceof Error
+          ? submitError.message
+          : "Unexpected error while releasing resident";
+      toast.error(message);
+    } finally {
+      setIsSubmittingRelease(false);
+    }
+  };
+
   if (isLoading) {
     return (
       <div className="space-y-6">
@@ -295,16 +369,29 @@ export default function ResidentProfilePage() {
           </Link>
         </div>
 
-        {resident.status !== "deactivated" ? (
-          <Button
-            type="button"
-            variant="destructive"
-            onClick={() => setIsDeactivateDialogOpen(true)}
-          >
-            <UserXIcon />
-            Deactivate
-          </Button>
-        ) : null}
+        <div className="flex items-center gap-2">
+          {resident.status === "active" ? (
+            <Button
+              type="button"
+              variant="destructive"
+              onClick={() => setIsReleaseDialogOpen(true)}
+            >
+              <UserMinusIcon />
+              Release
+            </Button>
+          ) : null}
+
+          {resident.status !== "deactivated" ? (
+            <Button
+              type="button"
+              variant="destructive"
+              onClick={() => setIsDeactivateDialogOpen(true)}
+            >
+              <UserXIcon />
+              Deactivate
+            </Button>
+          ) : null}
+        </div>
       </div>
 
       <div className="grid grid-cols-1 gap-4 md:grid-cols-2 xl:grid-cols-3">
@@ -420,6 +507,82 @@ export default function ResidentProfilePage() {
               disabled={isSubmittingDeactivate || !deactivateReason.trim()}
             >
               {isSubmittingDeactivate ? "Deactivating..." : "Confirm Deactivation"}
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
+      <Dialog open={isReleaseDialogOpen} onOpenChange={setIsReleaseDialogOpen}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Release Resident</DialogTitle>
+            <DialogDescription>
+              Communication access will be removed. Release date will be recorded.
+            </DialogDescription>
+          </DialogHeader>
+
+          <div className="space-y-4">
+            <div className="space-y-2">
+              <label htmlFor="release-date" className="text-sm font-medium">
+                Release date
+              </label>
+              <Popover>
+                <PopoverTrigger
+                  render={
+                    <Button
+                      id="release-date"
+                      type="button"
+                      variant="outline"
+                      className="w-full justify-start text-left font-normal"
+                      disabled={isSubmittingRelease}
+                    />
+                  }
+                >
+                  <CalendarIcon className="text-muted-foreground" />
+                  {format(releaseDate, "PPP")}
+                </PopoverTrigger>
+                <PopoverContent align="start" className="w-auto p-0">
+                  <Calendar
+                    mode="single"
+                    selected={releaseDate}
+                    onSelect={(selectedDate) => {
+                      if (selectedDate) {
+                        setReleaseDate(selectedDate);
+                      }
+                    }}
+                  />
+                </PopoverContent>
+              </Popover>
+            </div>
+
+            <div className="space-y-2">
+              <label htmlFor="release-reason" className="text-sm font-medium">
+                Reason
+              </label>
+              <Textarea
+                id="release-reason"
+                value={releaseReason}
+                onChange={(event: ChangeEvent<HTMLTextAreaElement>) =>
+                  handleReasonChange(event, setReleaseReason)
+                }
+                placeholder="Document why this resident is being released"
+                required
+                disabled={isSubmittingRelease}
+              />
+            </div>
+          </div>
+
+          <DialogFooter>
+            <DialogClose render={<Button type="button" variant="outline" />} disabled={isSubmittingRelease}>
+              Cancel
+            </DialogClose>
+            <Button
+              type="button"
+              variant="destructive"
+              onClick={handleRelease}
+              disabled={isSubmittingRelease || !releaseReason.trim()}
+            >
+              {isSubmittingRelease ? "Releasing..." : "Confirm Release"}
             </Button>
           </DialogFooter>
         </DialogContent>
