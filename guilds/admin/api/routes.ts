@@ -13,6 +13,7 @@ import { integrationRouter } from './integration.routes.js';
 import { residentsRouter } from './residents.routes.js';
 import { monitoringRouter } from './monitoring.routes.js';
 import { contactsRouter } from './contacts.routes.js';
+import { bulkImportRouter } from './bulk-import.routes.js';
 
 export const adminRouter = Router();
 
@@ -20,6 +21,7 @@ adminRouter.use('/keyword-alerts', keywordAlertsRouter);
 adminRouter.use('/flagged-content', flaggedContentRouter);
 adminRouter.use('/session-limits', sessionLimitsRouter);
 adminRouter.use('/integration', integrationRouter);
+adminRouter.use('/residents/bulk-import', bulkImportRouter);
 adminRouter.use('/residents', residentsRouter);
 adminRouter.use('/monitoring', monitoringRouter);
 adminRouter.use('/contacts', contactsRouter);

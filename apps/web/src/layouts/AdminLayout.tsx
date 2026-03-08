@@ -26,6 +26,16 @@ export default function AdminLayout() {
         { path: '/admin/contacts', label: 'Contacts', icon: '📋' },
       ],
     },
+    ...(user?.role === 'agency_admin'
+      ? [
+          {
+            title: 'Operations',
+            items: [
+              { path: '/admin/bulk-import', label: 'Bulk Import', icon: '📥' },
+            ],
+          },
+        ]
+      : []),
     {
       title: 'Communication',
       items: [
