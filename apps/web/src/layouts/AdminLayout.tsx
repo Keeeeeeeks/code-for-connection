@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import { useState } from 'react';
 import { Outlet, NavLink, useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 
@@ -12,11 +12,18 @@ export default function AdminLayout() {
     navigate('/login');
   };
 
-  const navSections = [
+  const navSections: { title: string; items: { path: string; label: string; icon: string; end?: boolean }[] }[] = [
     {
       title: 'Dashboard',
       items: [
         { path: '/admin', label: 'Overview', icon: '📊', end: true },
+      ],
+    },
+    {
+      title: 'Management',
+      items: [
+        { path: '/admin/residents', label: 'Residents', icon: '👤' },
+        { path: '/admin/contacts', label: 'Contacts', icon: '📋' },
       ],
     },
     {
