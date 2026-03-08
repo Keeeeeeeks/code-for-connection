@@ -29,7 +29,7 @@ You need these tools installed before starting. Click the links to download if y
 
 ```bash
 # Clone the repo
-git clone https://github.com/wildcard-dev/code-for-connection.git
+git clone https://github.com/keeeeeeeks/code-for-connection.git
 cd code-for-connection
 
 # Checkout your team's branch
