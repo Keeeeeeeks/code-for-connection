@@ -24,6 +24,7 @@ const MessagingAdmin = lazy(() => import('../../../guilds/messaging/ui/admin'));
 const AdminDashboard = lazy(() => import('../../../guilds/admin/ui'));
 const ResidentListPage = lazy(() => import('../../../guilds/admin/ui/residents/ResidentListPage'));
 const ResidentProfilePage = lazy(() => import('../../../guilds/admin/ui/residents/ResidentProfilePage'));
+const SearchPage = lazy(() => import('../../../guilds/admin/ui/SearchPage'));
 
 function ProtectedRoute({ children, allowedRoles }: { children: React.ReactNode; allowedRoles: string[] }) {
   const { user, loading } = useAuth();
@@ -130,6 +131,7 @@ function App() {
           }
         >
           <Route index element={<AdminDashboard />} />
+          <Route path="search" element={<SearchPage />} />
           <Route path="residents" element={<ResidentListPage />} />
           <Route path="residents/:id" element={<ResidentProfilePage />} />
           <Route path="voice/*" element={<VoiceAdmin />} />
