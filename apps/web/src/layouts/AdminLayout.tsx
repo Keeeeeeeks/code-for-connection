@@ -24,7 +24,7 @@ export default function AdminLayout() {
       title: 'Management',
       items: [
         { path: '/admin/residents', label: 'Residents', icon: '👤' },
-        { path: '/admin/search', label: 'Search', icon: '🔍' },
+        { path: '/admin/search', label: 'Search', icon: '🔍', roles: ['agency_admin'] },
       ],
     },
     {
@@ -54,14 +54,19 @@ export default function AdminLayout() {
         </div>
 
         <nav className="flex-1 py-4 overflow-y-auto">
-          {navSections.map((section) => (
+          {navSections.map((section) => {
+            const visibleItems = section.items.filter(
+              (item) => !item.roles || item.roles.includes(user?.role ?? '')
+            );
+            if (visibleItems.length === 0) return null;
+            return (
             <div key={section.title} className="mb-6">
               {sidebarOpen && (
                 <h2 className="px-4 mb-2 text-xs font-semibold text-gray-500 uppercase">
                   {section.title}
                 </h2>
               )}
-              {section.items.map((item) => (
+              {visibleItems.map((item) => (
                 <NavLink
                   key={item.path}
                   to={item.path}
@@ -79,7 +84,8 @@ export default function AdminLayout() {
                 </NavLink>
               ))}
             </div>
-          ))}
+            );
+          })}
         </nav>
 
         <button
