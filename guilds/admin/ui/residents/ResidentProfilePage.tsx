@@ -1,12 +1,21 @@
 import { useEffect, useMemo, useState, type ChangeEvent } from "react";
 import { Link, useNavigate, useParams } from "react-router-dom";
 import { format } from "date-fns";
-import { ArrowLeftIcon, CalendarIcon, UserMinusIcon, UserXIcon } from "lucide-react";
+import {
+  AlertTriangleIcon,
+  ArrowLeftIcon,
+  CalendarIcon,
+  CopyIcon,
+  KeyRoundIcon,
+  UserMinusIcon,
+  UserXIcon,
+} from "lucide-react";
 import { toast } from "sonner";
 
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Alert, AlertDescription } from "@/components/ui/alert";
 import {
   Dialog,
   DialogClose,
@@ -121,6 +130,11 @@ export default function ResidentProfilePage() {
   const [releaseReason, setReleaseReason] = useState("");
   const [releaseDate, setReleaseDate] = useState<Date>(new Date());
   const [isSubmittingRelease, setIsSubmittingRelease] = useState(false);
+
+  const [isPinDialogOpen, setIsPinDialogOpen] = useState(false);
+  const [pinStep, setPinStep] = useState<1 | 2>(1);
+  const [newPin, setNewPin] = useState<string | null>(null);
+  const [isSubmittingPin, setIsSubmittingPin] = useState(false);
 
   useEffect(() => {
     const controller = new AbortController();
@@ -320,6 +334,73 @@ export default function ResidentProfilePage() {
     }
   };
 
+  const handlePinDialogOpenChange = (open: boolean) => {
+    if (open) {
+      setPinStep(1);
+      setNewPin(null);
+      setIsPinDialogOpen(true);
+      return;
+    }
+
+    setIsPinDialogOpen(false);
+    setNewPin(null);
+  };
+
+  const handleGenerateNewPin = async () => {
+    if (!id || !resident) {
+      return;
+    }
+
+    const token = localStorage.getItem("token");
+
+    if (!token) {
+      toast.error("You are not authenticated. Please sign in again.");
+      return;
+    }
+
+    setIsSubmittingPin(true);
+
+    try {
+      const response = await fetch(`/api/admin/residents/${id}/reset-pin`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
+        body: JSON.stringify({}),
+      });
+
+      const payload = (await response.json()) as ApiResponse<{ newPin: string }>;
+
+      if (!response.ok || !payload.success) {
+        const message = payload.success ? "Failed to reset PIN" : payload.error.message;
+        throw new Error(message);
+      }
+
+      setNewPin(payload.data.newPin);
+      setPinStep(2);
+    } catch (submitError) {
+      const message =
+        submitError instanceof Error ? submitError.message : "Unexpected error while resetting PIN";
+      toast.error(message);
+    } finally {
+      setIsSubmittingPin(false);
+    }
+  };
+
+  const handleCopyPin = async () => {
+    if (!newPin) {
+      return;
+    }
+
+    try {
+      await navigator.clipboard.writeText(newPin);
+      toast.success("PIN copied to clipboard.");
+    } catch {
+      toast.error("Unable to copy PIN. Please copy it manually.");
+    }
+  };
+
   if (isLoading) {
     return (
       <div className="space-y-6">
@@ -414,6 +495,19 @@ export default function ResidentProfilePage() {
             <CardTitle>Security Level</CardTitle>
           </CardHeader>
           <CardContent>{resident.housingUnit?.unitType?.clearanceLevel ?? "-"}</CardContent>
+        </Card>
+
+        <Card>
+          <CardHeader>
+            <CardTitle>PIN</CardTitle>
+          </CardHeader>
+          <CardContent className="flex items-center justify-between gap-3">
+            <span className="font-medium">PIN: ••••</span>
+            <Button type="button" variant="outline" onClick={() => handlePinDialogOpenChange(true)}>
+              <KeyRoundIcon />
+              Reset PIN
+            </Button>
+          </CardContent>
         </Card>
 
         <Card>
@@ -584,6 +678,60 @@ export default function ResidentProfilePage() {
             >
               {isSubmittingRelease ? "Releasing..." : "Confirm Release"}
             </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
+      <Dialog open={isPinDialogOpen} onOpenChange={handlePinDialogOpenChange}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Reset PIN</DialogTitle>
+            <DialogDescription>
+              Generate a new resident PIN and securely communicate it immediately.
+            </DialogDescription>
+          </DialogHeader>
+
+          {pinStep === 1 ? (
+            <Alert variant="destructive">
+              <AlertTriangleIcon />
+              <AlertDescription>
+                This will generate a new PIN. The old PIN will stop working immediately. You must
+                communicate the new PIN to the resident.
+              </AlertDescription>
+            </Alert>
+          ) : (
+            <div className="space-y-4">
+              <div className="text-4xl font-mono tracking-widest text-center p-6 bg-muted rounded-lg">
+                {newPin}
+              </div>
+              <Button type="button" variant="outline" className="w-full" onClick={handleCopyPin}>
+                <CopyIcon />
+                Copy to Clipboard
+              </Button>
+              <p className="text-sm text-muted-foreground">This PIN will not be shown again.</p>
+            </div>
+          )}
+
+          <DialogFooter>
+            {pinStep === 1 ? (
+              <>
+                <DialogClose render={<Button type="button" variant="outline" />} disabled={isSubmittingPin}>
+                  Cancel
+                </DialogClose>
+                <Button
+                  type="button"
+                  variant="destructive"
+                  onClick={handleGenerateNewPin}
+                  disabled={isSubmittingPin}
+                >
+                  {isSubmittingPin ? "Generating..." : "Generate New PIN"}
+                </Button>
+              </>
+            ) : (
+              <Button type="button" onClick={() => handlePinDialogOpenChange(false)}>
+                Done
+              </Button>
+            )}
           </DialogFooter>
         </DialogContent>
       </Dialog>
