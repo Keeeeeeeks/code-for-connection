@@ -1,5 +1,11 @@
 import { useState, useEffect } from 'react';
-import { formatDuration } from '../../apps/web/src/utils/formatters';
+
+function formatDuration(seconds: number | null): string {
+  if (seconds == null || seconds <= 0) return '—';
+  const m = Math.floor(seconds / 60);
+  const s = seconds % 60;
+  return `${m}:${String(s).padStart(2, '0')}`;
+}
 
 /**
  * Shared UI components for admin dashboard tables.
