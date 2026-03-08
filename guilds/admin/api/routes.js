@@ -6,10 +6,18 @@ const shared_1 = require("@openconnect/shared");
 const keyword_alerts_routes_js_1 = require("./keyword-alerts.routes.js");
 const flagged_content_routes_js_1 = require("./flagged-content.routes.js");
 const session_limits_routes_js_1 = require("./session-limits.routes.js");
+const integration_routes_js_1 = require("./integration.routes.js");
+const residents_routes_js_1 = require("./residents.routes.js");
+const monitoring_routes_js_1 = require("./monitoring.routes.js");
+const contacts_routes_js_1 = require("./contacts.routes.js");
 exports.adminRouter = (0, express_1.Router)();
 exports.adminRouter.use('/keyword-alerts', keyword_alerts_routes_js_1.keywordAlertsRouter);
 exports.adminRouter.use('/flagged-content', flagged_content_routes_js_1.flaggedContentRouter);
 exports.adminRouter.use('/session-limits', session_limits_routes_js_1.sessionLimitsRouter);
+exports.adminRouter.use('/integration', integration_routes_js_1.integrationRouter);
+exports.adminRouter.use('/residents', residents_routes_js_1.residentsRouter);
+exports.adminRouter.use('/monitoring', monitoring_routes_js_1.monitoringRouter);
+exports.adminRouter.use('/contacts', contacts_routes_js_1.contactsRouter);
 exports.adminRouter.get('/contacts/:incarceratedPersonId', shared_1.requireAuth, async (req, res) => {
     try {
         const { incarceratedPersonId } = req.params;
