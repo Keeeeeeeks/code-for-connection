@@ -1,6 +1,19 @@
 import { useState } from 'react';
 import { Outlet, NavLink, useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
+import {
+  LayoutDashboard,
+  Users,
+  BookUser,
+  Upload,
+  Phone,
+  Video,
+  MessageSquare,
+  PanelLeftClose,
+  PanelLeftOpen,
+  LogOut,
+  type LucideIcon,
+} from 'lucide-react';
 
 export default function AdminLayout() {
   const { user, logout } = useAuth();
@@ -12,18 +25,18 @@ export default function AdminLayout() {
     navigate('/login');
   };
 
-  const navSections: { title: string; items: { path: string; label: string; icon: string; end?: boolean }[] }[] = [
+  const navSections: { title: string; items: { path: string; label: string; icon: LucideIcon; end?: boolean }[] }[] = [
     {
       title: 'Dashboard',
       items: [
-        { path: '/admin', label: 'Overview', icon: '📊', end: true },
+        { path: '/admin', label: 'Overview', icon: LayoutDashboard, end: true },
       ],
     },
     {
       title: 'Management',
       items: [
-        { path: '/admin/residents', label: 'Residents', icon: '👤' },
-        { path: '/admin/contacts', label: 'Contacts', icon: '📋' },
+        { path: '/admin/residents', label: 'Residents', icon: Users },
+        { path: '/admin/contacts', label: 'Contacts', icon: BookUser },
       ],
     },
     ...(user?.role === 'agency_admin'
@@ -31,7 +44,7 @@ export default function AdminLayout() {
           {
             title: 'Operations',
             items: [
-              { path: '/admin/bulk-import', label: 'Bulk Import', icon: '📥' },
+              { path: '/admin/bulk-import', label: 'Bulk Import', icon: Upload },
             ],
           },
         ]
@@ -39,9 +52,9 @@ export default function AdminLayout() {
     {
       title: 'Communication',
       items: [
-        { path: '/admin/voice', label: 'Voice Calls', icon: '📞' },
-        { path: '/admin/video', label: 'Video Calls', icon: '📹' },
-        { path: '/admin/messaging', label: 'Messages', icon: '💬' },
+        { path: '/admin/voice', label: 'Voice Calls', icon: Phone },
+        { path: '/admin/video', label: 'Video Calls', icon: Video },
+        { path: '/admin/messaging', label: 'Messages', icon: MessageSquare },
       ],
     },
   ];
@@ -83,7 +96,7 @@ export default function AdminLayout() {
                     }`
                   }
                 >
-                  <span className={sidebarOpen ? 'mr-3' : 'mx-auto'}>{item.icon}</span>
+                  <item.icon className={`h-4 w-4 ${sidebarOpen ? 'mr-3' : 'mx-auto'}`} />
                   {sidebarOpen && item.label}
                 </NavLink>
               ))}
@@ -95,7 +108,7 @@ export default function AdminLayout() {
           onClick={() => setSidebarOpen(!sidebarOpen)}
           className="p-4 border-t border-gray-800 text-gray-400 hover:text-white text-sm"
         >
-          {sidebarOpen ? '← Collapse' : '→'}
+          {sidebarOpen ? <PanelLeftClose className="h-4 w-4 inline mr-2" /> : <PanelLeftOpen className="h-4 w-4 mx-auto" />}
         </button>
       </aside>
 
@@ -115,8 +128,8 @@ export default function AdminLayout() {
                 onClick={handleLogout}
                 className="px-4 py-2 text-sm font-medium text-gray-700 hover:bg-gray-100 rounded-lg"
               >
+                <LogOut className="h-4 w-4 inline mr-1" />
                 Logout
-              </button>
             </div>
           </div>
         </header>
