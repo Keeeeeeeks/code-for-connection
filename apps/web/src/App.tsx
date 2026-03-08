@@ -19,7 +19,7 @@ const VideoAdmin = lazy(() => import('../../../guilds/admin/ui/video'));
 
 const MessagingIncarcerated = lazy(() => import('../../../guilds/messaging/ui/incarcerated'));
 const MessagingFamily = lazy(() => import('../../../guilds/messaging/ui/family'));
-const MessagingAdmin = lazy(() => import('../../../guilds/messaging/ui/admin'));
+const MessagingAdmin = lazy(() => import('../../../guilds/admin/ui/messaging'));
 
 const AdminDashboard = lazy(() => import('../../../guilds/admin/ui'));
 const ResidentListPage = lazy(() => import('../../../guilds/admin/ui/residents/ResidentListPage'));
@@ -134,6 +134,7 @@ function App() {
         >
           <Route index element={<AdminDashboard />} />
           <Route path="housing" element={<HousingConfigPage />} />
+          <Route path="search" element={<SearchPage />} />
           <Route path="residents" element={<ResidentListPage />} />
           <Route path="residents/:id" element={<ResidentProfilePage />} />
           <Route path="contacts" element={<ContactListPage />} />
