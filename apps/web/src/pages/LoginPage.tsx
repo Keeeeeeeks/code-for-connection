@@ -84,9 +84,9 @@ export default function LoginPage() {
         </Card>
 
         <div className="mt-8 text-center text-sm text-gray-500">
-          <p>Demo Credentials:</p>
-          <p className="mt-1">Family: alice@example.com / password123</p>
-          <p>Admin: admin@nydocs.gov / admin123</p>
+          <p className="font-medium">Demo Credentials:</p>
+          <p className="mt-1">Agency Admin (all facilities): admin@nydocs.gov / admin123</p>
+          <p>Facility Admin (Sing Sing): admin@singsingcf.gov / admin123</p>
         </div>
       </div>
     </div>
