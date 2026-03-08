@@ -163,6 +163,24 @@ function VideoDashboard() {
     }
   };
 
+  const handleDeny = async (callId: string) => {
+    setApproving(callId);
+    try {
+      const res = await fetch(`${API_BASE}/deny-request/${callId}`, {
+        method: 'POST',
+        headers,
+      });
+      const json = await res.json();
+      if (!json.success) throw new Error('Denial failed');
+      pendingRequests.refresh();
+      stats.refresh();
+    } catch (e) {
+      console.error('Error denying request:', e);
+    } finally {
+      setApproving(null);
+    }
+  };
+
   return (
     <div className="space-y-6">
       <div>
@@ -261,13 +279,22 @@ function VideoDashboard() {
                       )}
                     </td>
                     <td className="py-3">
-                      <button
-                        onClick={() => handleApprove(req.id)}
-                        disabled={approving === req.id}
-                        className="px-3 py-1 text-xs font-medium text-white bg-green-600 hover:bg-green-700 rounded disabled:opacity-50"
-                      >
-                        {approving === req.id ? 'Approving...' : 'Approve'}
-                      </button>
+                      <div className="flex gap-2">
+                        <button
+                          onClick={() => handleApprove(req.id)}
+                          disabled={approving === req.id}
+                          className="px-3 py-1 text-xs font-medium text-white bg-green-600 hover:bg-green-700 rounded disabled:opacity-50"
+                        >
+                          {approving === req.id ? '...' : 'Approve'}
+                        </button>
+                        <button
+                          onClick={() => handleDeny(req.id)}
+                          disabled={approving === req.id}
+                          className="px-3 py-1 text-xs font-medium text-white bg-red-600 hover:bg-red-700 rounded disabled:opacity-50"
+                        >
+                          Deny
+                        </button>
+                      </div>
                     </td>
                   </tr>
                 ))}
