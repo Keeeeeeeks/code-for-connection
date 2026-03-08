@@ -130,6 +130,7 @@ export default function AdminLayout() {
               >
                 <LogOut className="h-4 w-4 inline mr-1" />
                 Logout
+              </button>
             </div>
           </div>
         </header>
