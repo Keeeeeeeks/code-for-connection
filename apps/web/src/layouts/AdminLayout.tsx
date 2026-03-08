@@ -28,6 +28,12 @@ export default function AdminLayout() {
       ],
     },
     {
+      title: 'Administration',
+      items: [
+        { path: '/admin/housing', label: 'Housing Config', icon: '🏢', roles: ['agency_admin'] },
+      ],
+    },
+    {
       title: 'Communication',
       items: [
         { path: '/admin/voice', label: 'Voice Calls', icon: '📞' },
