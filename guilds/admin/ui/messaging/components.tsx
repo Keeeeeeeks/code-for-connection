@@ -127,7 +127,6 @@ export function MessagingHistoryTable({ messages, loading, pagination, onPageCha
             <tr className="border-b border-gray-200 text-left text-gray-500">
               <th className="pb-2 font-medium">From</th>
               <th className="pb-2 font-medium">To</th>
-              <th className="pb-2 font-medium">Message</th>
               <th className="pb-2 font-medium">Status</th>
               <th className="pb-2 font-medium">Date</th>
             </tr>
@@ -150,9 +149,6 @@ export function MessagingHistoryTable({ messages, loading, pagination, onPageCha
                     </div>
                   </td>
                   <td className="py-3">{to}</td>
-                  <td className="py-3 max-w-xs">
-                    <p className="truncate text-gray-700" title={msg.body}>{msg.body}</p>
-                  </td>
                   <td className="py-3"><StatusBadge status={msg.status} /></td>
                   <td className="py-3 text-gray-500 whitespace-nowrap">
                     {formatDate(msg.createdAt)} {formatTime(msg.createdAt)}

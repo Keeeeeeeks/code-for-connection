@@ -11,11 +11,11 @@ import {
   approveMessage,
   rejectMessage,
   blockConversation,
-} from '../shared/api';
+} from './api';
 import {
   MessagingPendingReviewTable,
   MessagingHistoryTable,
-} from '../shared/components';
+} from './components';
 
 function MessagingDashboard() {
   const { token } = useAuth();
