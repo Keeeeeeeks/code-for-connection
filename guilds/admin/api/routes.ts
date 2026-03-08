@@ -10,6 +10,7 @@ import { keywordAlertsRouter } from './keyword-alerts.routes.js';
 import { flaggedContentRouter } from './flagged-content.routes.js';
 import { sessionLimitsRouter } from './session-limits.routes.js';
 import { integrationRouter } from './integration.routes.js';
+import { residentsRouter } from './residents.routes.js';
 
 export const adminRouter = Router();
 
@@ -17,6 +18,7 @@ adminRouter.use('/keyword-alerts', keywordAlertsRouter);
 adminRouter.use('/flagged-content', flaggedContentRouter);
 adminRouter.use('/session-limits', sessionLimitsRouter);
 adminRouter.use('/integration', integrationRouter);
+adminRouter.use('/residents', residentsRouter);
 
 adminRouter.get('/contacts/:incarceratedPersonId', requireAuth, async (req: Request, res: Response) => {
   try {
