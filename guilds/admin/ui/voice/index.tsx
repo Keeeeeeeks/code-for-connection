@@ -8,11 +8,11 @@ import {
   fetchVoiceStats,
   fetchVoiceActiveCalls,
   fetchVoiceCallLogs,
-} from '../shared/api';
+} from './api';
 import {
   VoiceActiveCallsTable,
   VoiceCallHistoryTable,
-} from '../shared/components';
+} from './components';
 
 function VoiceDashboard() {
   const { token } = useAuth();
